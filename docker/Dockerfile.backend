@@ -1,0 +1,53 @@
+# ============================================
+# Dockerfile.backend - FastAPI Production Image
+# ============================================
+
+FROM python:3.11-slim
+
+# Prevent Python from writing .pyc files and buffering stdout
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies (for PyTorch, spaCy, PDF processing)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libgomp1 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (Docker cache optimization)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt && \
+    python -m spacy download en_core_web_sm && \
+    rm -rf /root/.cache/pip
+
+# Create non-root user for security
+RUN addgroup --system appgroup && \
+    adduser --system --ingroup appgroup appuser && \
+    chown -R appuser:appgroup /app
+
+# Copy application code
+COPY backend/ ./backend/
+COPY models/ ./models/
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+# Production: Use Gunicorn with Uvicorn workers
+# Workers = CPU cores (auto-detected), but capped at 4 for safety
+CMD ["sh", "-c", "cd backend && gunicorn main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --workers ${WORKERS:-2} --worker-connections 1000 --max-requests 1000 --max-requests-jitter 50 --timeout 30 --graceful-timeout 30 --preload --access-logfile -"]
