@@ -4,6 +4,7 @@ Create, Read, Update, Delete for Quiz, Question, and QuizResult.
 """
 
 from typing import List, Optional, Dict, Any
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
@@ -131,9 +132,9 @@ def get_quiz_result(db: Session, quiz_id: str) -> Optional[QuizResult]:
 def get_user_stats(db: Session) -> Dict[str, Any]:
     """Get aggregate user statistics."""
     total_quizzes = db.query(QuizResult).count()
-    total_questions = db.query(QuizResult).with_entities(function.sum(QuizResult.total_questions)).scalar() or 0
-    total_correct = db.query(QuizResult).with_entities(function.sum(QuizResult.score)).scalar() or 0
-    avg_accuracy = db.query(QuizResult).with_entities(function.avg(QuizResult.accuracy)).scalar() or 0
+    total_questions = db.query(QuizResult).with_entities(func.sum(QuizResult.total_questions)).scalar() or 0
+    total_correct = db.query(QuizResult).with_entities(func.sum(QuizResult.score)).scalar() or 0
+    avg_accuracy = db.query(QuizResult).with_entities(func.avg(QuizResult.accuracy)).scalar() or 0
 
     return {
         "total_quizzes": total_quizzes,
