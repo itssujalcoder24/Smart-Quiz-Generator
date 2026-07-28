@@ -13,7 +13,7 @@ from api.models.request_models import QuizConfigRequest
 from api.models.response_models import QuizResponse
 from core.pdf_extractor import extract_text, save_uploaded_file
 from core.question_generator import generate_questions
-from core.text_processor import get_content_stats
+# from core.text_processor import get_content_stats
 from utils.helpers import is_allowed_file, validate_num_questions, validate_difficulty
 
 logger = logging.getLogger(__name__)
