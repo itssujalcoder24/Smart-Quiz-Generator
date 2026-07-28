@@ -290,22 +290,6 @@ pytest tests/ --cov=backend --cov-report=html
 
 ---
 
-## 🎯 Roadmap
-
-- [x] Frontend UI (Streamlit)
-- [x] Docker deployment
-- [x] Test suite
-- [ ] Backend API (FastAPI)
-- [ ] ML Model integration (Flan-T5)
-- [ ] PDF text extraction
-- [ ] Database persistence
-- [ ] User authentication
-- [ ] Quiz history & analytics
-- [ ] Multi-language support
-- [ ] Cloud deployment (AWS/GCP)
-
----
-
 ## 🤝 Contributing
 
 1. Fork the repository
